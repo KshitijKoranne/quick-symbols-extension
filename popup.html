@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Symbols</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header class="popup-header">
+      <img src="icons/icon-32.png" alt="Quick Symbols Icon" class="header-icon">
+      <h1 class="header-title">Quick Symbols</h1>
+    </header>
+
+    <div class="search-container">
+      <input type="text" id="search-input" placeholder="Search symbols (e.g. 'celsius', 'degree')..." autocomplete="off" autofocus>
+      <div id="loading-indicator" class="hidden"></div>
+    </div>
+
+    <div class="content-area">
+      <section id="favorite-section" class="hidden">
+        <h2 class="section-title">Favorites</h2>
+        <div id="favorite-grid" class="symbol-grid"></div>
+      </section>
+
+      <section id="recent-section" class="hidden">
+        <h2 class="section-title">Recently Used</h2>
+        <div id="recent-grid" class="symbol-grid"></div>
+      </section>
+
+      <section id="results-section">
+        <div id="results-grid" class="symbol-grid"></div>
+      </section>
+    </div>
+
+    <div id="toast" class="toast hidden">Copied ✓</div>
+    
+    <footer class="popup-footer">
+      Made in India by <span class="labs-name">KJR Labs</span>
+    </footer>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
