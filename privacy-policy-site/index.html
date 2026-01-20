@@ -45,13 +45,16 @@
             margin-bottom: 60px;
         }
 
-        .logo {
-            font-size: 32px;
-            font-weight: 800;
-            letter-spacing: -0.04em;
-            color: var(--accent-color);
+        .logo-container {
+            display: flex;
+            justify-content: center;
             margin-bottom: 12px;
-            display: block;
+        }
+
+        .logo-img {
+            width: 64px;
+            height: 64px;
+            border-radius: 14px;
         }
 
         h1 {
@@ -128,7 +131,9 @@
 <body>
     <div class="container">
         <header>
-            <span class="logo">🥧 Quick Symbols</span>
+            <div class="logo-container">
+                <img src="icon.png" alt="Quick Symbols Icon" class="logo-img">
+            </div>
             <h1>Privacy Policy</h1>
             <p class="last-updated">Last Updated: January 20, 2026</p>
         </header>
