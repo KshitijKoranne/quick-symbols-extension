@@ -57,9 +57,10 @@ body {
 }
 
 .header-title {
-  font-size: 18px;
+  font-family: 'Charm', cursive;
+  font-size: 22px;
   font-weight: 700;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.01em;
   color: var(--text-main);
 }
 
@@ -223,20 +224,299 @@ body {
   color: var(--accent-color);
 }
 
-/* Scrollbar styling */
+/* Scrollbar styling - Colorful & Wavy */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 3px;
+  background: linear-gradient(
+    180deg,
+    #FF6B9D 0%,
+    #C86DD7 20%,
+    #6E8EFB 40%,
+    #4ECDC4 60%,
+    #FFD93D 80%,
+    #FF6B9D 100%
+  );
+  border-radius: 50% 50% 50% 50% / 10% 10% 10% 10%;
+  background-size: 100% 400%;
+  animation: wave-gradient 4s ease-in-out infinite, wave-shape 2s ease-in-out infinite;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 10px rgba(110, 142, 251, 0.4);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
+  animation: wave-gradient 2s ease-in-out infinite, wave-shape 1s ease-in-out infinite;
+  box-shadow: 0 0 15px rgba(110, 142, 251, 0.7);
+}
+
+@keyframes wave-gradient {
+  0%, 100% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 0% 100%;
+  }
+}
+
+@keyframes wave-shape {
+  0%, 100% {
+    border-radius: 50% 50% 50% 50% / 10% 10% 10% 10%;
+  }
+  25% {
+    border-radius: 50% 50% 50% 50% / 10% 30% 10% 30%;
+  }
+  50% {
+    border-radius: 50% 50% 50% 50% / 30% 10% 30% 10%;
+  }
+  75% {
+    border-radius: 50% 50% 50% 50% / 10% 30% 10% 30%;
+  }
+}
+
+/* --- Monetization Styles --- */
+
+/* Pro Badge in Header */
+.pro-badge {
+  background: linear-gradient(135deg, #FFD700, #FFA500);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 12px;
+  margin-left: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(255, 165, 0, 0.3);
+  animation: shine 3s infinite;
+  vertical-align: middle;
+  font-family: 'Inter', sans-serif;
+}
+
+@keyframes shine {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.05); }
+}
+
+/* Locked Symbol Styling */
+.symbol-item.locked {
+  opacity: 0.6;
+  background-color: #f5f5f5;
+  cursor: pointer; /* Still clickable to show upgrade modal */
+  position: relative;
+  overflow: hidden;
+}
+
+.symbol-item.locked:hover {
+  transform: none;
+  border-color: var(--border-color);
+  background-color: #f0f0f0;
+}
+
+.symbol-item.locked .symbol-char {
+  filter: blur(0.5px);
+  color: #999;
+}
+
+.symbol-item.locked .symbol-name {
+  color: #aaa;
+}
+
+.lock-icon {
+  position: absolute;
+  top: 6px;
+  right: 6px; /* Position where favorite star usually is */
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* Modal Styling */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.modal:not(.hidden) {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal.hidden {
+  display: none; /* Provide explicit display none for JS toggling */
+}
+
+.modal-content {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 320px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  transform: translateY(20px);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal:not(.hidden) .modal-content {
+  transform: translateY(0);
+}
+
+.modal h2 {
+  font-family: 'Charm', cursive;
+  font-weight: 700;
+  font-size: 24px;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.modal p {
+  color: #666;
+  font-size: 14px;
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.modal ul {
+  text-align: left;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px 0;
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.modal ul li {
+  padding: 4px 0;
+  font-size: 13px;
+  color: #555;
+  display: flex;
+  align-items: center;
+}
+
+.modal ul li::before {
+  content: "✨";
+  margin-right: 8px;
+  font-size: 10px;
+}
+
+.modal .price {
+  font-size: 28px;
+  font-weight: 800;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.modal .price-sub {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 20px;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, #6E8EFB, #4ECDC4);
+  color: white;
+  border: none;
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: transform 0.2s;
+  box-shadow: 0 4px 12px rgba(110, 142, 251, 0.3);
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(110, 142, 251, 0.4);
+}
+
+.secondary-btn {
+  background: transparent;
+  border: 1px solid #ddd;
+  color: #666;
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.secondary-btn:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.text-btn {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 12px;
+  margin-top: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.modal input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-family: monospace;
+  font-size: 16px;
+  text-align: center;
+  outline: none;
+}
+
+.modal input:focus {
+  border-color: #6E8EFB;
+}
+
+.error-msg {
+  color: #ff4757;
+  font-size: 12px;
+  margin-top: 8px;
+  display: none;
+}
+
+.error-msg.visible {
+  display: block;
+}
+
+.close-modal {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #ccc;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.close-modal:hover {
+  color: #888;
 }

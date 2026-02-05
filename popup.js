@@ -1,8 +1,30 @@
+// DOM Elements
+const searchInput = document.getElementById('search-input');
+const resultsGrid = document.getElementById('results-grid');
+const recentGrid = document.getElementById('recent-grid');
+const recentSection = document.getElementById('recent-section');
+const toast = document.getElementById('toast');
+const proBadge = document.getElementById('pro-badge');
+
+// Monetization Elements
+const upgradeModal = document.getElementById('upgrade-modal');
+const licenseModal = document.getElementById('license-modal');
+const upgradeBtn = document.getElementById('upgrade-btn');
+const enterKeyBtn = document.getElementById('enter-key-btn');
+const backToUpgradeBtn = document.getElementById('back-to-upgrade');
+const activateBtn = document.getElementById('activate-btn');
+const licenseInput = document.getElementById('license-input');
+const licenseError = document.getElementById('license-error');
+const closeButtons = document.querySelectorAll('.close-modal');
+
 let symbolsData = [];
 let recentSymbols = [];
 let favoriteSymbols = [];
 let selectedIndex = -1;
+let isProUser = false;
+let searchTimeout;
 
+// Pastel colors for hover effect
 const pastelColors = [
   '#FFD1DC', '#FFECB3', '#C1E1C1', '#B3E5FC', '#D1C4E9',
   '#F8BBD0', '#E1F5FE', '#F1F8E9', '#FFF9C4', '#FFE0B2',
@@ -12,15 +34,21 @@ const pastelColors = [
   '#BCAAA4', '#B0BEC5', '#FFCCBC', '#C5CAE9', '#C8E6C9'
 ];
 
-const searchInput = document.getElementById('search-input');
-const resultsGrid = document.getElementById('results-grid');
-const recentGrid = document.getElementById('recent-grid');
-const recentSection = document.getElementById('recent-section');
-const toast = document.getElementById('toast');
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
+  loadData();
+  setupMonetizationListeners();
+  searchInput.focus();
+});
 
-// Load symbols data
 async function loadData() {
   try {
+    // Check Pro Status
+    if (typeof LicenseManager !== 'undefined') {
+      isProUser = await LicenseManager.isPro();
+      updateProUI();
+    }
+
     const response = await fetch('data/symbols.json');
     const data = await response.json();
     symbolsData = data.symbols;
@@ -36,6 +64,181 @@ async function loadData() {
   } catch (error) {
     console.error('Error loading symbols:', error);
   }
+}
+
+function updateProUI() {
+  if (isProUser && proBadge) {
+    proBadge.style.display = 'inline-block';
+  }
+}
+
+function setupMonetizationListeners() {
+  if (!upgradeBtn) return;
+
+  // Upgrade Flow
+  upgradeBtn.addEventListener('click', () => {
+    chrome.tabs.create({ url: 'https://kshitijkoranne.gumroad.com/l/quick-symbols-pro' });
+  });
+
+  enterKeyBtn.addEventListener('click', () => {
+    upgradeModal.classList.add('hidden');
+    licenseModal.classList.remove('hidden');
+    licenseInput.focus();
+  });
+
+  backToUpgradeBtn.addEventListener('click', () => {
+    licenseModal.classList.add('hidden');
+    upgradeModal.classList.remove('hidden');
+  });
+
+  // License Activation
+  activateBtn.addEventListener('click', handleActivation);
+  
+  licenseInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') handleActivation();
+  });
+
+  // Close Modals
+  closeButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      upgradeModal.classList.add('hidden');
+      licenseModal.classList.add('hidden');
+      licenseError.classList.remove('visible');
+    });
+  });
+
+  // Close on outside click
+  window.addEventListener('click', (e) => {
+    if (e.target === upgradeModal) upgradeModal.classList.add('hidden');
+    if (e.target === licenseModal) licenseModal.classList.add('hidden');
+  });
+}
+
+async function handleActivation() {
+  const key = licenseInput.value;
+  activateBtn.textContent = 'Verifying...';
+  activateBtn.disabled = true;
+  licenseError.classList.remove('visible');
+
+  try {
+    const isValid = await LicenseManager.validateLicense(key);
+    if (isValid) {
+      isProUser = true;
+      updateProUI();
+      licenseModal.classList.add('hidden');
+      
+      // Auto-focus search after success
+      searchInput.focus();
+      
+      // Show success toast
+      toast.textContent = 'Pro Unlocked! 🚀';
+      showToast();
+      
+      // Reset toast text after delay
+      setTimeout(() => { toast.textContent = 'Copied ✓'; }, 2500);
+      
+      // Re-render to unlock symbols
+      renderResults(getCurrentResults());
+      renderFavorites();
+      renderRecent();
+    }
+  } catch (error) {
+    licenseError.textContent = error.message || 'Invalid license key';
+    licenseError.classList.add('visible');
+  } finally {
+    activateBtn.textContent = 'Activate Pro';
+    activateBtn.disabled = false;
+  }
+}
+
+function createSymbolItem(symbolData) {
+  const isFavorite = favoriteSymbols.some(s => s.symbol === symbolData.symbol);
+  
+  // Monetization Check
+  const isLocked = symbolData.tier === 'pro' && !isProUser;
+  
+  const item = document.createElement('div');
+  item.className = `symbol-item ${isLocked ? 'locked' : ''}`;
+  item.tabIndex = 0;
+  
+  // Update random color on every hover or focus (only if unlocked)
+  if (!isLocked) {
+    const randomizeColor = () => {
+      const randomColor = pastelColors[Math.floor(Math.random() * pastelColors.length)];
+      item.style.setProperty('--hover-color', randomColor);
+    };
+    item.addEventListener('mouseenter', randomizeColor);
+    item.addEventListener('focus', randomizeColor);
+  }
+
+  // Add lock icon if locked
+  if (isLocked) {
+    const lockIcon = document.createElement('span');
+    lockIcon.className = 'lock-icon';
+    lockIcon.textContent = '🔒';
+    item.appendChild(lockIcon);
+  }
+  
+  const charSpan = document.createElement('span');
+  charSpan.className = 'symbol-char';
+  charSpan.textContent = symbolData.symbol;
+  
+  const nameSpan = document.createElement('span');
+  nameSpan.className = 'symbol-name';
+  nameSpan.textContent = symbolData.name;
+  
+  // Only show favorite button if NOT locked
+  if (!isLocked) {
+    const favBtn = document.createElement('button');
+    favBtn.className = `favorite-btn ${isFavorite ? 'active' : ''}`;
+    favBtn.title = 'Favorite';
+    favBtn.textContent = '★';
+    item.appendChild(favBtn);
+    
+    favBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleFavorite(symbolData);
+    });
+  }
+  
+  item.appendChild(charSpan);
+  item.appendChild(nameSpan);
+  
+  item.addEventListener('click', (e) => {
+    if (isLocked) {
+      upgradeModal.classList.remove('hidden');
+    } else {
+      if (!e.target.classList.contains('favorite-btn')) {
+        copyToClipboard(symbolData);
+      }
+    }
+  });
+  
+  item.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (isLocked) {
+        upgradeModal.classList.remove('hidden');
+      } else {
+        copyToClipboard(symbolData);
+      }
+    }
+  });
+  
+  return item;
+}
+
+function renderResults(results) {
+  resultsGrid.innerHTML = '';
+  selectedIndex = -1;
+  const fragment = document.createDocumentFragment();
+  
+  results.forEach((symbol) => {
+    const item = createSymbolItem(symbol);
+    fragment.appendChild(item);
+  });
+  
+  resultsGrid.appendChild(fragment);
 }
 
 function renderRecent() {
@@ -67,67 +270,6 @@ function renderFavorites() {
     const item = createSymbolItem(symbol);
     favoriteGrid.appendChild(item);
   });
-}
-
-function renderResults(results) {
-  resultsGrid.innerHTML = '';
-  selectedIndex = -1;
-  
-  results.forEach((symbol) => {
-    const item = createSymbolItem(symbol);
-    resultsGrid.appendChild(item);
-  });
-}
-
-function createSymbolItem(symbolData) {
-  const isFavorite = favoriteSymbols.some(s => s.symbol === symbolData.symbol);
-  const item = document.createElement('div');
-  item.className = 'symbol-item';
-  item.tabIndex = 0;
-  
-  // Update random color on every hover or focus
-  const randomizeColor = () => {
-    const randomColor = pastelColors[Math.floor(Math.random() * pastelColors.length)];
-    item.style.setProperty('--hover-color', randomColor);
-  };
-  
-  item.addEventListener('mouseenter', randomizeColor);
-  item.addEventListener('focus', randomizeColor);
-  
-  // Use textContent to prevent XSS
-  const charSpan = document.createElement('span');
-  charSpan.className = 'symbol-char';
-  charSpan.textContent = symbolData.symbol;
-  
-  const nameSpan = document.createElement('span');
-  nameSpan.className = 'symbol-name';
-  nameSpan.textContent = symbolData.name;
-  
-  const favBtn = document.createElement('button');
-  favBtn.className = `favorite-btn ${isFavorite ? 'active' : ''}`;
-  favBtn.title = 'Favorite';
-  favBtn.textContent = '★';
-  
-  item.appendChild(charSpan);
-  item.appendChild(nameSpan);
-  item.appendChild(favBtn);
-  
-  item.addEventListener('click', (e) => {
-    if (e.target.classList.contains('favorite-btn')) {
-      toggleFavorite(symbolData);
-    } else {
-      copyToClipboard(symbolData);
-    }
-  });
-  
-  item.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      copyToClipboard(symbolData);
-    }
-  });
-  
-  return item;
 }
 
 async function toggleFavorite(symbolData) {
@@ -189,7 +331,6 @@ async function updateRecent(symbolData) {
 }
 
 // Search logic with simple debounce
-let searchTimeout;
 searchInput.addEventListener('input', (e) => {
   clearTimeout(searchTimeout);
   searchTimeout = setTimeout(() => {
@@ -212,6 +353,15 @@ searchInput.addEventListener('input', (e) => {
 
 // Keyboard navigation
 window.addEventListener('keydown', (e) => {
+  // If modal is open, handle escape
+  if (!upgradeModal.classList.contains('hidden') || !licenseModal.classList.contains('hidden')) {
+    if (e.key === 'Escape') {
+      upgradeModal.classList.add('hidden');
+      licenseModal.classList.add('hidden');
+    }
+    return;
+  }
+
   const items = Array.from(document.querySelectorAll('.symbol-item'));
   if (items.length === 0) return;
 
@@ -252,9 +402,3 @@ function updateSelection(items) {
     items[selectedIndex].focus();
   }
 }
-
-// Focus search input on load
-window.addEventListener('DOMContentLoaded', () => {
-  loadData();
-  searchInput.focus();
-});

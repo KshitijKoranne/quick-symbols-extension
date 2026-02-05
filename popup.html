@@ -6,7 +6,7 @@
   <title>Quick Symbols</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Charm:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
@@ -43,6 +43,43 @@
       Made in India by <span class="labs-name">KJR Labs</span>
     </footer>
   </div>
+
+  <!-- Upgrade Modal -->
+  <div id="upgrade-modal" class="modal hidden">
+    <div class="modal-content">
+      <button class="close-modal">&times;</button>
+      <h2>Unlock Pro ✨</h2>
+      <p>Get instant access to 160+ premium symbols including Greek, Roman, Music & more.</p>
+      <ul>
+        <li>Complete Greek Alphabet</li>
+        <li>Roman Numerals & Zodiac</li>
+        <li>Advanced Math & Logic</li>
+        <li>Lifetime Updates</li>
+      </ul>
+      <div class="price">$1.99</div>
+      <div class="price-sub">One-time payment • Lifetime access</div>
+      
+      <button id="upgrade-btn" class="primary-btn">Unlock All Symbols</button>
+      <button id="enter-key-btn" class="secondary-btn">I have a license key</button>
+    </div>
+  </div>
+
+  <!-- License Key Modal -->
+  <div id="license-modal" class="modal hidden">
+    <div class="modal-content">
+      <button class="close-modal">&times;</button>
+      <h2>Enter License Key</h2>
+      <p>Paste the key sent to your email</p>
+      
+      <input type="text" id="license-input" placeholder="XXXX-XXXX-XXXX-XXXX">
+      <div id="license-error" class="error-msg">Invalid license key</div>
+      
+      <button id="activate-btn" class="primary-btn">Activate Pro</button>
+      <button id="back-to-upgrade" class="text-btn">Back</button>
+    </div>
+  </div>
+  <script src="config.js"></script>
+  <script src="license.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>
