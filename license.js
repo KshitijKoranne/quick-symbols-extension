@@ -1,54 +1,90 @@
 const LicenseManager = {
-  // Check if user has pro access
-  async isPro() {
-    const data = await chrome.storage.local.get(['isPro']);
-    return !!data.isPro;
+  async storageGet(defaults) {
+    if (globalThis.chrome?.storage?.local) {
+      return chrome.storage.local.get(defaults);
+    }
+
+    const result = {};
+    Object.keys(defaults).forEach((key) => {
+      const value = localStorage.getItem(key);
+      result[key] = value ? JSON.parse(value) : defaults[key];
+    });
+    return result;
   },
 
-  // Validate license key with Gumroad API
+  async storageSet(values) {
+    if (globalThis.chrome?.storage?.local) {
+      return chrome.storage.local.set(values);
+    }
+
+    Object.entries(values).forEach(([key, value]) => {
+      localStorage.setItem(key, JSON.stringify(value));
+    });
+  },
+
+  async storageRemove(keys) {
+    if (globalThis.chrome?.storage?.local) {
+      return chrome.storage.local.remove(keys);
+    }
+
+    keys.forEach((key) => localStorage.removeItem(key));
+  },
+
+  // Check if user has pro access
+  async isPro() {
+    const data = await this.storageGet({ licenseKey: '', licenseEntitlement: null });
+    if (!data.licenseKey) return false;
+
+    if (data.licenseEntitlement?.isPro) {
+      return true;
+    }
+
+    try {
+      await this.validateLicense(data.licenseKey);
+      return true;
+    } catch (error) {
+      return false;
+    }
+  },
+
+  getApiBaseUrl() {
+    const apiBaseUrl = (CONFIG.API_BASE_URL || '').replace(/\/$/, '');
+    if (!apiBaseUrl || apiBaseUrl.includes('your-vercel-project')) {
+      return '';
+    }
+    return apiBaseUrl;
+  },
+
+  getUpgradeUrl() {
+    return CONFIG.UPGRADE_URL || this.getApiBaseUrl();
+  },
+
+  // Validate license key with the Razorpay-backed license API
   async validateLicense(key) {
     try {
       if (!key || key.length < 5) {
         throw new Error('Invalid license key format');
       }
 
+      const apiBaseUrl = this.getApiBaseUrl();
+      if (!apiBaseUrl) {
+        throw new Error('License server is not configured yet');
+      }
 
-
-      // Encode parameters for x-www-form-urlencoded
-      const params = new URLSearchParams();
-      // Use permalink instead of ID for potentially better matching
-      params.append('product_permalink', CONFIG.GUMROAD_PERMALINK);
-      params.append('license_key', key.trim());
-      params.append('increment_uses_count', 'true');
-
-      const response = await fetch('https://api.gumroad.com/v2/licenses/verify', {
+      const response = await fetch(`${apiBaseUrl}/api/check-license`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body: params
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ license: key.trim() })
       });
 
       const data = await response.json();
 
-      if (!data.success) {
-        // Handle specific error case for refunded/chargebacked
-        if (data.purchase && (data.purchase.refunded || data.purchase.chargebacked)) {
-          await this.deactivatePro();
-          throw new Error('License has been refunded or disabled');
-        }
-        // Return Gumroad's specific error message if available, or fallback
-        throw new Error(data.message || 'Invalid license key');
+      if (!response.ok || !data.pro) {
+        await this.deactivatePro();
+        throw new Error(data.error || 'Invalid license key');
       }
 
-      // Check if refunded even if success is true (edge case)
-      if (data.purchase.refunded || data.purchase.chargebacked) {
-         await this.deactivatePro();
-         throw new Error('License has been refunded');
-      }
-
-      // Success! Activate pro
-      await this.activatePro(key);
+      await this.activatePro(key, data);
       return true;
 
     } catch (error) {
@@ -58,16 +94,21 @@ const LicenseManager = {
   },
 
   // Activate pro status
-  async activatePro(key) {
-    await chrome.storage.local.set({
-      isPro: true,
+  async activatePro(key, entitlement = {}) {
+    await this.storageSet({
       licenseKey: key,
+      licenseEntitlement: {
+        isPro: true,
+        email: entitlement.email || '',
+        issuedAt: entitlement.issuedAt || ''
+      },
+      licenseLastCheckedAt: Date.now(),
       activationDate: new Date().toISOString()
     });
   },
 
   // Deactivate pro status (for testing or refunds)
   async deactivatePro() {
-    await chrome.storage.local.remove(['isPro', 'licenseKey', 'activationDate']);
+    await this.storageRemove(['isPro', 'licenseKey', 'licenseEntitlement', 'licenseLastCheckedAt', 'activationDate']);
   }
 };

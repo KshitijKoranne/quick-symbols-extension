@@ -23,7 +23,7 @@
 <body>
     <div class="container">
         <h1>Privacy Policy</h1>
-        <p class="last-updated">Last Updated: February 6, 2026</p>
+        <p class="last-updated">Last Updated: May 23, 2026</p>
 
         <p>Quick Symbols ("we", "our", or "us") is committed to protecting your privacy. This policy explains how we handle your data.</p>
 
@@ -31,11 +31,11 @@
         <p>Quick Symbols is designed to be privacy-first. We do <strong>not</strong> track your browsing activity, clipboard history, or keystrokes. The core symbol search and copy functionality runs entirely locally on your device.</p>
 
         <h2>2. Payments & Licensing</h2>
-        <p>To unlock Pro features, the extension verifies your License Key using the <strong>Gumroad API</strong>.</p>
+        <p>To unlock Pro features, the extension verifies your license key using a Razorpay-backed license service operated for Quick Symbols.</p>
         <ul>
-            <li><strong>Data Transmission:</strong> When you manually enter your license key, we transmit strictly the license key to Gumroad's servers (<code>api.gumroad.com</code>) to verify its validity. check its authentic usage status, and confirm your purchase.</li>
-            <li><strong>Local Storage:</strong> If your license is valid, we store a secure token or status flag locally in your browser (<code>chrome.storage.local</code>) to keep your Pro features unlocked.</li>
-            <li><strong>No Personal Storage:</strong> We do not store your name, email address, credit card details, or physical address on our own servers. Payment processing is handled entirely by Gumroad.</li>
+            <li><strong>Data Transmission:</strong> When you manually enter your license key, we transmit the license key to our license API to verify that the associated Razorpay payment is valid and not refunded.</li>
+            <li><strong>Local Storage:</strong> If your license is valid, we store the license key and Pro entitlement locally in your browser (<code>chrome.storage.local</code>) to keep your Pro features unlocked.</li>
+            <li><strong>No Card Storage:</strong> We do not store card details or payment credentials. Payment processing is handled by Razorpay.</li>
         </ul>
 
         <h2>3. Local Storage</h2>
@@ -43,14 +43,15 @@
         <ul>
             <li>Your list of "Recently Used" symbols.</li>
             <li>Your "Favorite" symbols.</li>
-            <li>Your Pro status (isPro: true/false).</li>
+            <li>Your license key and Pro status.</li>
         </ul>
         <p>This data never leaves your browser.</p>
 
         <h2>4. Third-Party Services</h2>
         <ul>
-            <li><strong>Gumroad:</strong> Used for payment processing and license key generation. Their privacy policy applies to the checkout and purchase process.</li>
-            <li><strong>Google Fonts:</strong> The extension loads fonts from Google Fonts to provide a consistent UI.</li>
+            <li><strong>Razorpay:</strong> Used for payment processing. Razorpay's privacy policy applies to checkout and purchase processing.</li>
+            <li><strong>Quick Symbols License API:</strong> Used only to create orders, verify payments, recover license keys, and check license status.</li>
+            <li><strong>Google Fonts:</strong> Used to load the Charm and Inter fonts in the extension popup.</li>
         </ul>
 
         <h2>5. Updates to this Policy</h2>

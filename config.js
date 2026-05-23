@@ -1,4 +1,4 @@
 const CONFIG = {
-  // Permalink should be just the slug, NOT the full URL
-  GUMROAD_PERMALINK: 'quick-symbols-pro'
+  API_BASE_URL: 'https://quick-symbols-pro.vercel.app',
+  UPGRADE_URL: 'https://quick-symbols-pro.vercel.app/upgrade.html'
 };

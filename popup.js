@@ -24,6 +24,37 @@ let selectedIndex = -1;
 let isProUser = false;
 let searchTimeout;
 
+async function getLocalStorage(defaults) {
+  if (globalThis.chrome?.storage?.local) {
+    return chrome.storage.local.get(defaults);
+  }
+
+  const result = {};
+  Object.keys(defaults).forEach((key) => {
+    const value = localStorage.getItem(key);
+    result[key] = value ? JSON.parse(value) : defaults[key];
+  });
+  return result;
+}
+
+async function setLocalStorage(values) {
+  if (globalThis.chrome?.storage?.local) {
+    return chrome.storage.local.set(values);
+  }
+
+  Object.entries(values).forEach(([key, value]) => {
+    localStorage.setItem(key, JSON.stringify(value));
+  });
+}
+
+function openExtensionUrl(url) {
+  if (globalThis.chrome?.tabs?.create) {
+    chrome.tabs.create({ url });
+    return;
+  }
+  window.open(url, '_blank', 'noopener');
+}
+
 // Pastel colors for hover effect
 const pastelColors = [
   '#FFD1DC', '#FFECB3', '#C1E1C1', '#B3E5FC', '#D1C4E9',
@@ -54,7 +85,7 @@ async function loadData() {
     symbolsData = data.symbols;
     
     // Load recent and favorite symbols from storage
-    const storage = await chrome.storage.local.get(['recent', 'favorites']);
+    const storage = await getLocalStorage({ recent: [], favorites: [] });
     recentSymbols = storage.recent || [];
     favoriteSymbols = storage.favorites || [];
     
@@ -77,7 +108,13 @@ function setupMonetizationListeners() {
 
   // Upgrade Flow
   upgradeBtn.addEventListener('click', () => {
-    chrome.tabs.create({ url: 'https://kshitijkoranne.gumroad.com/l/quick-symbols-pro' });
+    const url = LicenseManager.getUpgradeUrl();
+    if (!url) {
+      licenseError.textContent = 'Payment page is not configured yet';
+      licenseError.classList.add('visible');
+      return;
+    }
+    openExtensionUrl(url);
   });
 
   enterKeyBtn.addEventListener('click', () => {
@@ -280,7 +317,7 @@ async function toggleFavorite(symbolData) {
     favoriteSymbols.splice(index, 1);
   }
   
-  await chrome.storage.local.set({ favorites: favoriteSymbols });
+  await setLocalStorage({ favorites: favoriteSymbols });
   renderFavorites();
   renderRecent();
   renderResults(getCurrentResults());
@@ -326,7 +363,7 @@ async function updateRecent(symbolData) {
   // Limit to 10
   recentSymbols = recentSymbols.slice(0, 10);
   
-  await chrome.storage.local.set({ recent: recentSymbols });
+  await setLocalStorage({ recent: recentSymbols });
   renderRecent();
 }
 

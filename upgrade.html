@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Unlock Quick Symbols Pro with a one-time Razorpay payment and lifetime license.">
+  <title>Quick Symbols Pro</title>
+  <link rel="stylesheet" href="upgrade.css">
+</head>
+<body>
+  <main class="page">
+    <section class="panel">
+      <img src="icons/icon-128.png" alt="Quick Symbols" class="logo">
+      <p class="eyebrow">Lifetime Pro</p>
+      <h1>Quick Symbols Pro</h1>
+      <p class="summary">Unlock the full symbol library with one lifetime payment.</p>
+
+      <div class="price">
+        <span>INR</span>
+        <strong>149</strong>
+      </div>
+
+      <ul class="features">
+        <li>160+ premium symbols</li>
+        <li>One-time Razorpay payment</li>
+        <li>Lifetime license key</li>
+        <li>Future Pro symbols included</li>
+      </ul>
+
+      <label for="email">Email for your license</label>
+      <input type="email" id="email" placeholder="you@example.com" autocomplete="email">
+      <button id="pay">Pay with Razorpay</button>
+      <p id="message" class="message"></p>
+
+      <div id="license-card" class="license-card hidden">
+        <h2>Your license key</h2>
+        <textarea id="license" readonly></textarea>
+        <button id="copy-license">Copy License</button>
+        <p>Open the extension popup, paste this key, and click Activate Pro.</p>
+      </div>
+
+      <div class="license-card">
+        <h2>Already paid?</h2>
+        <input type="text" id="payment-id" placeholder="Razorpay Payment ID">
+        <input type="text" id="order-id" placeholder="Razorpay Order ID">
+        <button id="recover-license">Recover License</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="upgrade.js"></script>
+</body>
+</html>

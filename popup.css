@@ -296,7 +296,7 @@ body {
   box-shadow: 0 2px 4px rgba(255, 165, 0, 0.3);
   animation: shine 3s infinite;
   vertical-align: middle;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-family);
 }
 
 @keyframes shine {

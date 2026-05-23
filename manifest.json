@@ -28,6 +28,6 @@
     "48": "icons/icon-48.png",
     "128": "icons/icon-128.png"
   },
-  "host_permissions": ["https://api.gumroad.com/*"],
+  "host_permissions": ["https://quick-symbols-pro.vercel.app/*"],
   "offline_enabled": true
 }
