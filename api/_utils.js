@@ -1,6 +1,6 @@
 const crypto = require('crypto');
 
-const AMOUNT_IN_PAISE = 14900;
+const AMOUNT_IN_PAISE = 9900;
 const CURRENCY = 'INR';
 const PRODUCT_ID = 'quick-symbols-lifetime-pro';
 const PRODUCT_NAME = 'Quick Symbols';
