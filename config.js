@@ -1,4 +1,4 @@
 const CONFIG = {
-  API_BASE_URL: 'https://quick-symbols-pro.vercel.app',
-  UPGRADE_URL: 'https://quick-symbols-pro.vercel.app/upgrade.html'
+  API_BASE_URL: 'https://quick-symbols-extension.vercel.app',
+  UPGRADE_URL: 'https://quick-symbols-extension.vercel.app/upgrade.html'
 };
